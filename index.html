@@ -89,6 +89,13 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    .catBox, .fishBox {
+  margin-top: 20px;
+  padding: 10px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
   </style>
 </head>
 <body>
@@ -170,7 +177,25 @@
     <div id="inventoryList"></div>
   </div>
 
+  <div class="catBox">
+  <h3>🐱 Cat </h3>
+  <p>Name: <span id="catNameDisplay">Kitty</span></p>
+  <input type="text" id="catNameInput" placeholder="Name your cat" />
+  <button onclick="renameCat()">Rename</button>
+  <p id="catMessage">Meow...</p>
+  <button onclick="feedCat()">Feed Fish 🐟</button>
+</div>
+
+<div class="fishBox">
+  <h3>🎣 Go Fishing</h3>
+  <button onclick="goFishing()">Fish (5💰)</button>
+  <p>Fish Inventory: <span id="fishCount">0</span></p>
+</div>
+
+
   <script>
+    let catName = "Kitty";
+let fishInventory = 0;
     const gridSize = 3;
 let coins = 0;
 let currentCrop = 'wheat';
@@ -246,8 +271,12 @@ function handlePlotClick(index, plotArray, containerId) {
 function updateStats() {
   document.getElementById("coins").textContent = coins;
   document.getElementById("currentCrop").textContent = `${currentCrop} ${cropData[currentCrop].emoji}`;
+  document.getElementById("fishCount").textContent = fishInventory;
   updateInventorySidebar();
+  updateSellDropdown();
+  updateCropShop();
 }
+
 
 function selectCrop(crop) {
   if (!cropData[crop].unlocked) return;
@@ -284,6 +313,45 @@ function updateInventorySidebar() {
       container.appendChild(div);
     }
   }
+}
+function renameCat() {
+  const input = document.getElementById("catNameInput").value.trim();
+  if (input) {
+    catName = input;
+    document.getElementById("catNameDisplay").textContent = catName;
+    document.getElementById("catMessage").textContent = `${catName} says: meow meow fish?`;
+  }
+}
+
+function goFishing() {
+  if (coins < 5) {
+    alert("Not enough coins to fish!");
+    return;
+  }
+  coins -= 5;
+  const roll = Math.random();
+  if (roll < 0.6) {
+    fishInventory += 1;
+    alert("You caught a fish! 🐟");
+  } else if (roll < 0.9) {
+    alert("You caught junk... 🪙");
+  } else {
+    fishInventory += 1;
+    alert("You caught a rare fish! 🐠");
+  }
+  updateStats();
+}
+
+function feedCat() {
+  if (fishInventory < 1) {
+    alert(`${catName} looks disappointed... no fish.`);
+    return;
+  }
+  fishInventory -= 1;
+  const reward = Math.floor(Math.random() * 3) + 1;
+  coins += reward;
+  document.getElementById("catMessage").textContent = `${catName} purrs happily. You earned ${reward}💰!`;
+  updateStats();
 }
 
 function sellCrop() {
