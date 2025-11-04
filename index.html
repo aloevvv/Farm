@@ -205,9 +205,11 @@ function unlockExpansion() {
   if (expansionUnlocked || coins < 50) return;
   coins -= 50;
   expansionUnlocked = true;
-  createGrid("extraGrid", extraPlots);
+  extraPlots.length = 0; // Clear old locked plots
+  createGrid("extraGrid", extraPlots); // Recreate with unlocked plots
   updateStats();
 }
+
 
 function updateInventorySidebar() {
   const container = document.getElementById("inventoryList");
