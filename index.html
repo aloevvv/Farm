@@ -94,8 +94,9 @@
 <body>
   <div class="sidebar">
     <h2>🌱 Crops</h2>
-<div id="cropShop"></div>
-
+    <button onclick="selectCrop('wheat')">Wheat 🌾 (Free)</button>
+    <button onclick="buyCrop('carrot', 10)">Unlock Carrot 🥕 (10💰)</button>
+    <button onclick="buyCrop('strawberry', 20)">Unlock Strawberry 🍓 (20💰)</button>
     <h2>🧱 Expansion</h2>
     <button onclick="unlockExpansion()" id="expansionBtn">Unlock Extra Plot (50💰)</button>
   </div>
@@ -108,8 +109,10 @@
 
     <div class="sellBox">
       <h3>💸 Sell Crops</h3>
-        <select id="sellSelect"></select>
-
+      <select id="sellSelect">
+        <option value="wheat">Wheat 🌾</option>
+        <option value="carrot">Carrot 🥕</option>
+        <option value="strawberry">Strawberry 🍓</option>
       </select>
       <input type="number" id="sellAmount" min="1" placeholder="Amount" />
       <button onclick="sellCrop()">Sell</button>
@@ -131,32 +134,9 @@
 let coins = 0;
 let currentCrop = 'wheat';
 const cropData = {
-  wheat:      { emoji: '🌾', growTime: 3000, value: 2, unlocked: true,  inventory: 0 },
-  carrot:     { emoji: '🥕', growTime: 4000, value: 4, unlocked: false, inventory: 0 },
-  strawberry: { emoji: '🍓', growTime: 5000, value: 6, unlocked: false, inventory: 0 },
-  apple:      { emoji: '🍎', growTime: 4500, value: 5, unlocked: false, inventory: 0 },
-  banana:     { emoji: '🍌', growTime: 5000, value: 6, unlocked: false, inventory: 0 },
-  watermelon: { emoji: '🍉', growTime: 6000, value: 8, unlocked: false, inventory: 0 },
-  peach:      { emoji: '🍑', growTime: 5500, value: 7, unlocked: false, inventory: 0 },
-  orange:     { emoji: '🍊', growTime: 5000, value: 6, unlocked: false, inventory: 0 },
-  mango:      { emoji: '🥭', growTime: 6000, value: 8, unlocked: false, inventory: 0 },
-  lemon:      { emoji: '🍋', growTime: 4500, value: 5, unlocked: false, inventory: 0 },
-  tomato:     { emoji: '🍅', growTime: 4000, value: 4, unlocked: false, inventory: 0 },
-  blueberry:  { emoji: '🫐', growTime: 5000, value: 6, unlocked: false, inventory: 0 },
-  grapes:     { emoji: '🍇', growTime: 5000, value: 6, unlocked: false, inventory: 0 },
-  corn:       { emoji: '🌽', growTime: 4000, value: 4, unlocked: false, inventory: 0 },
-  potato:     { emoji: '🥔', growTime: 4000, value: 4, unlocked: false, inventory: 0 },
-  broccoli:   { emoji: '🥦', growTime: 4500, value: 5, unlocked: false, inventory: 0 },
-  lettuce:    { emoji: '🥬', growTime: 4000, value: 4, unlocked: false, inventory: 0 },
-  garlic:     { emoji: '🧄', growTime: 4500, value: 5, unlocked: false, inventory: 0 },
-  onion:      { emoji: '🧅', growTime: 4500, value: 5, unlocked: false, inventory: 0 },
-  eggplant:   { emoji: '🍆', growTime: 5000, value: 6, unlocked: false, inventory: 0 },
-  pepper:     { emoji: '🫑', growTime: 5000, value: 6, unlocked: false, inventory: 0 },
-  mushroom:   { emoji: '🍄', growTime: 4000, value: 4, unlocked: false, inventory: 0 },
-  cucumber:   { emoji: '🥒', growTime: 4000, value: 4, unlocked: false, inventory: 0 },
-  peas:       { emoji: '🫛', growTime: 4000, value: 4, unlocked: false, inventory: 0 }
-};
-
+  wheat: { emoji: '🌾', growTime: 3000, value: 2, unlocked: true, inventory: 0 },
+  carrot: { emoji: '🥕', growTime: 4000, value: 4, unlocked: false, inventory: 0 },
+  strawberry: { emoji: '🍓', growTime: 5000, value: 6, unlocked: false, inventory: 0 }
 };
 const plots = [];
 const extraPlots = [];
@@ -205,10 +185,7 @@ function updateStats() {
   document.getElementById("coins").textContent = coins;
   document.getElementById("currentCrop").textContent = `${currentCrop} ${cropData[currentCrop].emoji}`;
   updateInventorySidebar();
-  updateCropShop();
-  updateSellDropdown();
 }
-
 
 function selectCrop(crop) {
   if (!cropData[crop].unlocked) return;
@@ -222,26 +199,6 @@ function buyCrop(crop, cost) {
   cropData[crop].unlocked = true;
   selectCrop(crop);
   updateStats();
-}
-function updateCropShop() {
-  const shop = document.getElementById("cropShop");
-  shop.innerHTML = "";
-  for (let crop in cropData) {
-    const data = cropData[crop];
-    const label = `${crop.charAt(0).toUpperCase() + crop.slice(1)} ${data.emoji}`;
-    const button = document.createElement("button");
-
-    if (data.unlocked) {
-      button.textContent = `${label} (Switch)`;
-      button.onclick = () => selectCrop(crop);
-    } else {
-      const cost = data.value * 2 + 2; // Example cost formula
-      button.textContent = `Unlock ${label} (${cost}💰)`;
-      button.onclick = () => buyCrop(crop, cost);
-    }
-
-    shop.appendChild(button);
-  }
 }
 
 function unlockExpansion() {
@@ -278,18 +235,6 @@ function sellCrop() {
   cropData[type].inventory -= amount;
   coins += amount * cropData[type].value;
   updateStats();
-}
-function updateSellDropdown() {
-  const dropdown = document.getElementById("sellSelect");
-  dropdown.innerHTML = "";
-  for (let crop in cropData) {
-    if (cropData[crop].unlocked) {
-      const option = document.createElement("option");
-      option.value = crop;
-      option.textContent = `${crop.charAt(0).toUpperCase() + crop.slice(1)} ${cropData[crop].emoji}`;
-      dropdown.appendChild(option);
-    }
-  }
 }
 
 function sellAll() {
