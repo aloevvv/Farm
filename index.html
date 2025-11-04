@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Farm & Fortune</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f8e2;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #4b8b3b;
+    }
+    .farm {
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      background-color: #8bc34a;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #7cb342;
+    }
+    .stats {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌾 Farm & Fortune 🌾</h1>
+  <div class="farm">
+    <button onclick="plantCrop()">Plant Wheat</button>
+    <button onclick="harvestCrop()">Harvest</button>
+    <button onclick="sellCrop()">Sell</button>
+  </div>
+  <div class="stats">
+    <p>🌱 Wheat: <span id="wheatCount">0</span></p>
+    <p>💰 Coins: <span id="coins">0</span></p>
+  </div>
+
+  <script>
+    let wheat = 0;
