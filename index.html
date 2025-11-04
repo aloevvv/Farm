@@ -47,4 +47,48 @@
   </div>
 
   <script>
-    let wheat = 5;
+    let wheat = 0;
+    let coins = 0;
+    let growing = false;
+
+    function plantCrop() {
+      if (growing) {
+        alert("Wheat is already growing!");
+        return;
+      }
+      growing = true;
+      document.querySelector("button").innerText = "Growing...";
+      setTimeout(() => {
+        wheat += 1;
+        growing = false;
+        document.querySelector("button").innerText = "Plant Wheat";
+        updateStats();
+      }, 3000); // 3 seconds grow time
+    }
+
+    function harvestCrop() {
+      if (wheat <= 0) {
+        alert("No wheat to harvest!");
+        return;
+      }
+      alert("You harvested 1 wheat!");
+      updateStats();
+    }
+
+    function sellCrop() {
+      if (wheat <= 0) {
+        alert("No wheat to sell!");
+        return;
+      }
+      coins += wheat * 2; // Each wheat sells for 2 coins
+      wheat = 0;
+      updateStats();
+    }
+
+    function updateStats() {
+      document.getElementById("wheatCount").textContent = wheat;
+      document.getElementById("coins").textContent = coins;
+    }
+  </script>
+</body>
+</html>
