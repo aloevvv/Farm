@@ -11,7 +11,7 @@
       margin: 0;
     }
     .sidebar {
-      width: 200px;
+      width: 220px;
       background-color: #c5e1a5;
       padding: 20px;
       box-shadow: 2px 0 5px rgba(0,0,0,0.1);
@@ -30,10 +30,6 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-    }
-    .sidebar button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
     }
     .main {
       flex: 1;
@@ -60,7 +56,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 24px;
     }
     .grown {
       background-color: #a5d6a7 !important;
@@ -69,28 +65,58 @@
       background-color: #eee;
       border: 2px dashed #aaa;
       cursor: not-allowed;
+      font-size: 14px;
     }
     .stats {
       font-size: 18px;
       margin-top: 10px;
+    }
+    .inventory {
+      margin-top: 20px;
+    }
+    .inventory select, .inventory input {
+      padding: 5px;
+      font-size: 14px;
+      margin-right: 5px;
+    }
+    .inventory button {
+      padding: 5px 10px;
+      font-size: 14px;
+      background-color: #ffcc80;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="sidebar">
     <h2>🌱 Crops</h2>
-    <button onclick="selectCrop('wheat')">Wheat (Free)</button>
-    <button onclick="buyCrop('carrot', 10)" id="carrotBtn">Unlock Carrot (10💰)</button>
-    <button onclick="buyCrop('strawberry', 20)" id="strawberryBtn">Unlock Strawberry (20💰)</button>
+    <button onclick="selectCrop('wheat')">Wheat 🌾 (Free)</button>
+    <button onclick="buyCrop('carrot', 10)">Unlock Carrot 🥕 (10💰)</button>
+    <button onclick="buyCrop('strawberry', 20)">Unlock Strawberry 🍓 (20💰)</button>
     <h2>🧱 Expansion</h2>
     <button onclick="unlockExpansion()" id="expansionBtn">Unlock Extra Plot (50💰)</button>
   </div>
 
   <div class="main">
     <h1>🌾 Farm & Fortune 🌾</h1>
-    <p>Click a plot to plant <span id="currentCrop">wheat</span>. Wait, then harvest!</p>
+    <p>Planting: <span id="currentCrop">wheat 🌾</span></p>
     <div class="grid" id="farmGrid"></div>
     <div class="grid" id="extraGrid"></div>
+
+    <div class="inventory">
+      <h3>📦 Inventory</h3>
+      <select id="sellSelect">
+        <option value="wheat">Wheat 🌾</option>
+        <option value="carrot">Carrot 🥕</option>
+        <option value="strawberry">Strawberry 🍓</option>
+      </select>
+      <input type="number" id="sellAmount" min="1" placeholder="Amount" />
+      <button onclick="sellCrop()">Sell</button>
+      <button onclick="sellAll()">Sell All</button>
+    </div>
+
     <div class="stats">
       <p>💰 Coins: <span id="coins">0</span></p>
     </div>
@@ -101,9 +127,9 @@
     let coins = 0;
     let currentCrop = 'wheat';
     const cropData = {
-      wheat: { growTime: 3000, value: 2, unlocked: true },
-      carrot: { growTime: 4000, value: 4, unlocked: false },
-      strawberry: { growTime: 5000, value: 6, unlocked: false }
+      wheat: { emoji: '🌾', growTime: 3000, value: 2, unlocked: true, inventory: 0 },
+      carrot: { emoji: '🥕', growTime: 4000, value: 4, unlocked: false, inventory: 0 },
+      strawberry: { emoji: '🍓', growTime: 5000, value: 6, unlocked: false, inventory: 0 }
     };
     const plots = [];
     const extraPlots = [];
@@ -131,18 +157,18 @@
       if (plot.status === "empty") {
         plot.status = "growing";
         plot.crop = currentCrop;
-        plotDiv.textContent = "Growing...";
+        plotDiv.textContent = "⏳";
         plotDiv.classList.remove("grown");
         plot.timer = setTimeout(() => {
           plot.status = "grown";
-          plotDiv.textContent = "Ready!";
+          plotDiv.textContent = cropData[plot.crop].emoji;
           plotDiv.classList.add("grown");
         }, cropData[currentCrop].growTime);
       } else if (plot.status === "grown") {
         plot.status = "empty";
         plotDiv.textContent = "Empty";
         plotDiv.classList.remove("grown");
-        coins += cropData[plot.crop].value;
+        cropData[plot.crop].inventory += 1;
         updateStats();
       }
     }
@@ -154,14 +180,13 @@
     function selectCrop(crop) {
       if (!cropData[crop].unlocked) return;
       currentCrop = crop;
-      document.getElementById("currentCrop").textContent = crop;
+      document.getElementById("currentCrop").textContent = `${crop} ${cropData[crop].emoji}`;
     }
 
     function buyCrop(crop, cost) {
       if (coins < cost || cropData[crop].unlocked) return;
       coins -= cost;
       cropData[crop].unlocked = true;
-      document.getElementById(crop + "Btn").disabled = true;
       selectCrop(crop);
       updateStats();
     }
@@ -170,9 +195,29 @@
       if (expansionUnlocked || coins < 50) return;
       coins -= 50;
       expansionUnlocked = true;
-      document.getElementById("expansionBtn").disabled = true;
       document.getElementById("extraGrid").innerHTML = "";
       createGrid("extraGrid", extraPlots);
+      updateStats();
+    }
+
+    function sellCrop() {
+      const type = document.getElementById("sellSelect").value;
+      const amount = parseInt(document.getElementById("sellAmount").value);
+      if (isNaN(amount) || amount <= 0) return;
+      if (cropData[type].inventory < amount) {
+        alert("Not enough inventory!");
+        return;
+      }
+      cropData[type].inventory -= amount;
+      coins += amount * cropData[type].value;
+      updateStats();
+    }
+
+    function sellAll() {
+      for (let crop in cropData) {
+        coins += cropData[crop].inventory * cropData[crop].value;
+        cropData[crop].inventory = 0;
+      }
       updateStats();
     }
 
