@@ -186,6 +186,16 @@
   <button onclick="feedCat()">Feed Fish 🐟</button>
 </div>
 
+  <div class="catStatusBox">
+  <h4>🐱 Cat Needs</h4>
+  <p>Hunger: <span id="catHungerDisplay">100</span>/100</p>
+  <p>Thirst: <span id="catThirstDisplay">100</span>/100</p>
+  <button onclick="feedCat()">Feed Fish 🍗</button>
+  <button onclick="giveWater()">Give Water 💧</button>
+  <p id="catStatusMessage">Kitty is feeling great!</p>
+</div>
+
+
 <div class="fishBox">
   <h3>🎣 Go Fishing</h3>
   <button onclick="goFishing()">Fish (5💰)</button>
@@ -196,6 +206,14 @@
   <script>
     let catName = "Kitty";
 let fishInventory = 0;
+    let catHunger = 100;
+let catThirst = 100;
+    setInterval(() => {
+  if (catHunger > 0) catHunger -= 1;
+  if (catThirst > 0) catThirst -= 1;
+  updateCatStatus();
+}, 60000); // every 60 seconds
+
     const gridSize = 3;
 let coins = 0;
 let currentCrop = 'wheat';
@@ -275,6 +293,36 @@ function updateStats() {
   updateInventorySidebar();
   updateSellDropdown();
   updateCropShop();
+}
+function updateCatStatus() {
+  document.getElementById("catHungerDisplay").textContent = catHunger;
+  document.getElementById("catThirstDisplay").textContent = catThirst;
+
+  if (catHunger <= 0 && catThirst <= 0) {
+    document.getElementById("catStatusMessage").textContent = `${catName} is weak and won't interact...`;
+  } else if (catHunger < 30 || catThirst < 30) {
+    document.getElementById("catStatusMessage").textContent = `${catName} looks uncomfortable. Maybe feed or hydrate them.`;
+  } else {
+    document.getElementById("catStatusMessage").textContent = `${catName} is feeling great!`;
+  }
+}
+
+    function feedCat() {
+  if (fishInventory < 1) {
+    document.getElementById("catStatusMessage").textContent = `${catName} looks hungry... but you have no fish.`;
+    return;
+  }
+  fishInventory -= 1;
+  catHunger = Math.min(catHunger + 20, 100);
+  document.getElementById("catStatusMessage").textContent = `${catName} gobbled the fish happily.`;
+  updateStats();
+  updateCatStatus();
+}
+
+function giveWater() {
+  catThirst = Math.min(catThirst + 20, 100);
+  document.getElementById("catStatusMessage").textContent = `${catName} slurped the water.`;
+  updateCatStatus();
 }
 
 
