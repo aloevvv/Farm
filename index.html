@@ -95,8 +95,29 @@
   <div class="sidebar">
     <h2>🌱 Crops</h2>
     <button onclick="selectCrop('wheat')">Wheat 🌾 (Free)</button>
-    <button onclick="buyCrop('carrot', 10)">Unlock Carrot 🥕 (10💰)</button>
-    <button onclick="buyCrop('strawberry', 20)">Unlock Strawberry 🍓 (20💰)</button>
+<button onclick="buyCrop('carrot', 10)">Unlock Carrot 🥕 (10💰)</button>
+<button onclick="buyCrop('strawberry', 20)">Unlock Strawberry 🍓 (20💰)</button>
+<button onclick="buyCrop('apple', 20)">Unlock Apple 🍎 (20💰)</button>
+<button onclick="buyCrop('banana', 20)">Unlock Banana 🍌 (20💰)</button>
+<button onclick="buyCrop('watermelon', 30)">Unlock Watermelon 🍉 (30💰)</button>
+<button onclick="buyCrop('peach', 25)">Unlock Peach 🍑 (25💰)</button>
+<button onclick="buyCrop('orange', 20)">Unlock Orange 🍊 (20💰)</button>
+<button onclick="buyCrop('mango', 30)">Unlock Mango 🥭 (30💰)</button>
+<button onclick="buyCrop('lemon', 20)">Unlock Lemon 🍋 (20💰)</button>
+<button onclick="buyCrop('tomato', 15)">Unlock Tomato 🍅 (15💰)</button>
+<button onclick="buyCrop('blueberry', 20)">Unlock Blueberry 🫐 (20💰)</button>
+<button onclick="buyCrop('grapes', 20)">Unlock Grapes 🍇 (20💰)</button>
+<button onclick="buyCrop('corn', 15)">Unlock Corn 🌽 (15💰)</button>
+<button onclick="buyCrop('potato', 15)">Unlock Potato 🥔 (15💰)</button>
+<button onclick="buyCrop('broccoli', 20)">Unlock Broccoli 🥦 (20💰)</button>
+<button onclick="buyCrop('lettuce', 15)">Unlock Lettuce 🥬 (15💰)</button>
+<button onclick="buyCrop('garlic', 20)">Unlock Garlic 🧄 (20💰)</button>
+<button onclick="buyCrop('onion', 20)">Unlock Onion 🧅 (20💰)</button>
+<button onclick="buyCrop('eggplant', 20)">Unlock Eggplant 🍆 (20💰)</button>
+<button onclick="buyCrop('pepper', 20)">Unlock Pepper 🫑 (20💰)</button>
+<button onclick="buyCrop('mushroom', 15)">Unlock Mushroom 🍄 (15💰)</button>
+<button onclick="buyCrop('cucumber', 15)">Unlock Cucumber 🥒 (15💰)</button>
+<button onclick="buyCrop('peas', 15)">Unlock Peas 🫛 (15💰)</button>
     <h2>🧱 Expansion</h2>
     <button onclick="unlockExpansion()" id="expansionBtn">Unlock Extra Plot (50💰)</button>
   </div>
@@ -108,12 +129,32 @@
     <div class="grid" id="extraGrid"></div>
 
     <div class="sellBox">
-      <h3>💸 Sell Crops</h3>
       <select id="sellSelect">
-        <option value="wheat">Wheat 🌾</option>
-        <option value="carrot">Carrot 🥕</option>
-        <option value="strawberry">Strawberry 🍓</option>
-      </select>
+  <option value="wheat">Wheat 🌾</option>
+  <option value="carrot">Carrot 🥕</option>
+  <option value="strawberry">Strawberry 🍓</option>
+  <option value="apple">Apple 🍎</option>
+  <option value="banana">Banana 🍌</option>
+  <option value="watermelon">Watermelon 🍉</option>
+  <option value="peach">Peach 🍑</option>
+  <option value="orange">Orange 🍊</option>
+  <option value="mango">Mango 🥭</option>
+  <option value="lemon">Lemon 🍋</option>
+  <option value="tomato">Tomato 🍅</option>
+  <option value="blueberry">Blueberry 🫐</option>
+  <option value="grapes">Grapes 🍇</option>
+  <option value="corn">Corn 🌽</option>
+  <option value="potato">Potato 🥔</option>
+  <option value="broccoli">Broccoli 🥦</option>
+  <option value="lettuce">Lettuce 🥬</option>
+  <option value="garlic">Garlic 🧄</option>
+  <option value="onion">Onion 🧅</option>
+  <option value="eggplant">Eggplant 🍆</option>
+  <option value="pepper">Pepper 🫑</option>
+  <option value="mushroom">Mushroom 🍄</option>
+  <option value="cucumber">Cucumber 🥒</option>
+  <option value="peas">Peas 🫛</option>
+</select>
       <input type="number" id="sellAmount" min="1" placeholder="Amount" />
       <button onclick="sellCrop()">Sell</button>
       <button onclick="sellAll()">Sell All</button>
