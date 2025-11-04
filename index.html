@@ -10,21 +10,23 @@
       display: flex;
       margin: 0;
     }
-    .sidebar {
+    .sidebar, .inventorySidebar {
       width: 220px;
       background-color: #c5e1a5;
       padding: 20px;
       box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     }
-    .sidebar h2 {
+    .inventorySidebar {
+      box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    }
+    .sidebar h2, .inventorySidebar h2 {
       font-size: 18px;
       margin-bottom: 10px;
     }
-    .sidebar button {
-      display: block;
-      margin: 10px 0;
-      padding: 8px;
-      width: 100%;
+    .sidebar button, .inventorySidebar button {
+      display: inline-block;
+      margin: 5px 0;
+      padding: 5px 10px;
       font-size: 14px;
       background-color: #8bc34a;
       border: none;
@@ -71,22 +73,6 @@
       font-size: 18px;
       margin-top: 10px;
     }
-    .inventory {
-      margin-top: 20px;
-    }
-    .inventory select, .inventory input {
-      padding: 5px;
-      font-size: 14px;
-      margin-right: 5px;
-    }
-    .inventory button {
-      padding: 5px 10px;
-      font-size: 14px;
-      background-color: #ffcc80;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
@@ -104,22 +90,14 @@
     <p>Planting: <span id="currentCrop">wheat 🌾</span></p>
     <div class="grid" id="farmGrid"></div>
     <div class="grid" id="extraGrid"></div>
-
-    <div class="inventory">
-      <h3>📦 Inventory</h3>
-      <select id="sellSelect">
-        <option value="wheat">Wheat 🌾</option>
-        <option value="carrot">Carrot 🥕</option>
-        <option value="strawberry">Strawberry 🍓</option>
-      </select>
-      <input type="number" id="sellAmount" min="1" placeholder="Amount" />
-      <button onclick="sellCrop()">Sell</button>
-      <button onclick="sellAll()">Sell All</button>
-    </div>
-
     <div class="stats">
       <p>💰 Coins: <span id="coins">0</span></p>
     </div>
+  </div>
+
+  <div class="inventorySidebar">
+    <h2>📦 Inventory</h2>
+    <div id="inventoryList"></div>
   </div>
 
   <script>
@@ -137,6 +115,7 @@
 
     function createGrid(containerId, plotArray, locked = false) {
       const grid = document.getElementById(containerId);
+      grid.innerHTML = "";
       for (let i = 0; i < gridSize * gridSize; i++) {
         const plot = document.createElement("div");
         plot.className = locked ? "plot locked" : "plot";
@@ -175,12 +154,14 @@
 
     function updateStats() {
       document.getElementById("coins").textContent = coins;
+      document.getElementById("currentCrop").textContent = `${currentCrop} ${cropData[currentCrop].emoji}`;
+      updateInventorySidebar();
     }
 
     function selectCrop(crop) {
       if (!cropData[crop].unlocked) return;
       currentCrop = crop;
-      document.getElementById("currentCrop").textContent = `${crop} ${cropData[crop].emoji}`;
+      updateStats();
     }
 
     function buyCrop(crop, cost) {
@@ -195,34 +176,26 @@
       if (expansionUnlocked || coins < 50) return;
       coins -= 50;
       expansionUnlocked = true;
-      document.getElementById("extraGrid").innerHTML = "";
       createGrid("extraGrid", extraPlots);
       updateStats();
     }
 
-    function sellCrop() {
-      const type = document.getElementById("sellSelect").value;
-      const amount = parseInt(document.getElementById("sellAmount").value);
-      if (isNaN(amount) || amount <= 0) return;
-      if (cropData[type].inventory < amount) {
-        alert("Not enough inventory!");
-        return;
-      }
-      cropData[type].inventory -= amount;
-      coins += amount * cropData[type].value;
-      updateStats();
-    }
-
-    function sellAll() {
+    function updateInventorySidebar() {
+      const container = document.getElementById("inventoryList");
+      container.innerHTML = "";
       for (let crop in cropData) {
-        coins += cropData[crop].inventory * cropData[crop].value;
-        cropData[crop].inventory = 0;
+        if (cropData[crop].unlocked) {
+          const div = document.createElement("div");
+          div.innerHTML = `${crop.charAt(0).toUpperCase() + crop.slice(1)} ${cropData[crop].emoji} ${cropData[crop].inventory} 
+            <button onclick="selectCrop('${crop}')">Switch</button>`;
+          container.appendChild(div);
+        }
       }
-      updateStats();
     }
 
     createGrid("farmGrid", plots);
     createGrid("extraGrid", extraPlots, true);
+    updateStats();
   </script>
 </body>
 </html>
