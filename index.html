@@ -73,6 +73,22 @@
       font-size: 18px;
       margin-top: 10px;
     }
+    .sellBox {
+      margin-top: 20px;
+    }
+    .sellBox select, .sellBox input {
+      padding: 5px;
+      font-size: 14px;
+      margin-right: 5px;
+    }
+    .sellBox button {
+      padding: 5px 10px;
+      font-size: 14px;
+      background-color: #ffcc80;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -90,6 +106,19 @@
     <p>Planting: <span id="currentCrop">wheat 🌾</span></p>
     <div class="grid" id="farmGrid"></div>
     <div class="grid" id="extraGrid"></div>
+
+    <div class="sellBox">
+      <h3>💸 Sell Crops</h3>
+      <select id="sellSelect">
+        <option value="wheat">Wheat 🌾</option>
+        <option value="carrot">Carrot 🥕</option>
+        <option value="strawberry">Strawberry 🍓</option>
+      </select>
+      <input type="number" id="sellAmount" min="1" placeholder="Amount" />
+      <button onclick="sellCrop()">Sell</button>
+      <button onclick="sellAll()">Sell All</button>
+    </div>
+
     <div class="stats">
       <p>💰 Coins: <span id="coins">0</span></p>
     </div>
