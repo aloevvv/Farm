@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Farm & Fortune</title>
+  <title>Farm Plot Idle Game</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -13,82 +13,87 @@
     h1 {
       color: #4b8b3b;
     }
-    .farm {
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 10px;
+      justify-content: center;
       margin-top: 20px;
     }
-    button {
-      padding: 10px 20px;
-      margin: 10px;
-      font-size: 16px;
-      background-color: #8bc34a;
-      border: none;
-      border-radius: 5px;
+    .plot {
+      width: 100px;
+      height: 100px;
+      background-color: #dcedc8;
+      border: 2px solid #8bc34a;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-    }
-    button:hover {
-      background-color: #7cb342;
+      font-size: 14px;
     }
     .stats {
       margin-top: 20px;
       font-size: 18px;
     }
+    .grown {
+      background-color: #a5d6a7 !important;
+    }
   </style>
 </head>
 <body>
-  <h1>🌾 Farm & Fortune 🌾</h1>
-  <div class="farm">
-    <button onclick="plantCrop()">Plant Wheat</button>
-    <button onclick="harvestCrop()">Harvest</button>
-    <button onclick="sellCrop()">Sell</button>
-  </div>
+  <h1>🌾 Farm Plot Idle Game 🌾</h1>
+  <p>Click a plot to plant wheat. Wait for it to grow, then click again to harvest!</p>
+  <div class="grid" id="farmGrid"></div>
   <div class="stats">
-    <p>🌱 Wheat: <span id="wheatCount">5</span></p>
     <p>💰 Coins: <span id="coins">0</span></p>
   </div>
 
   <script>
-    let wheat = 5;
+    const gridSize = 3;
     let coins = 0;
-    let growing = false;
+    const plots = [];
 
-    function plantCrop() {
-      if (growing) {
-        alert("Wheat is already growing!");
-        return;
+    function createGrid() {
+      const grid = document.getElementById("farmGrid");
+      for (let i = 0; i < gridSize * gridSize; i++) {
+        const plot = document.createElement("div");
+        plot.className = "plot";
+        plot.textContent = "Empty";
+        plot.dataset.index = i;
+        plot.onclick = () => handlePlotClick(i);
+        grid.appendChild(plot);
+        plots.push({ status: "empty", timer: null });
       }
-      growing = true;
-      document.querySelector("button").innerText = "Growing...";
-      setTimeout(() => {
-        wheat += 1;
-        growing = false;
-        document.querySelector("button").innerText = "Plant Wheat";
+    }
+
+    function handlePlotClick(index) {
+      const plot = plots[index];
+      const plotDiv = document.querySelector(`.plot[data-index="${index}"]`);
+
+      if (plot.status === "empty") {
+        plot.status = "growing";
+        plotDiv.textContent = "Growing...";
+        plotDiv.classList.remove("grown");
+        plot.timer = setTimeout(() => {
+          plot.status = "grown";
+          plotDiv.textContent = "Ready!";
+          plotDiv.classList.add("grown");
+        }, 3000);
+      } else if (plot.status === "grown") {
+        plot.status = "empty";
+        plotDiv.textContent = "Empty";
+        plotDiv.classList.remove("grown");
+        coins += 2;
         updateStats();
-      }, 3000); // 3 seconds grow time
-    }
-
-    function harvestCrop() {
-      if (wheat <= 0) {
-        alert("No wheat to harvest!");
-        return;
       }
-      alert("You harvested 1 wheat!");
-      updateStats();
-    }
-
-    function sellCrop() {
-      if (wheat <= 0) {
-        alert("No wheat to sell!");
-        return;
-      }
-      coins += wheat * 2; // Each wheat sells for 2 coins
-      wheat = 0;
-      updateStats();
     }
 
     function updateStats() {
-      document.getElementById("wheatCount").textContent = wheat;
       document.getElementById("coins").textContent = coins;
     }
+
+    createGrid();
   </script>
 </body>
 </html>
