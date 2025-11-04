@@ -102,100 +102,124 @@
 
   <script>
     const gridSize = 3;
-    let coins = 0;
-    let currentCrop = 'wheat';
-    const cropData = {
-      wheat: { emoji: '🌾', growTime: 3000, value: 2, unlocked: true, inventory: 0 },
-      carrot: { emoji: '🥕', growTime: 4000, value: 4, unlocked: false, inventory: 0 },
-      strawberry: { emoji: '🍓', growTime: 5000, value: 6, unlocked: false, inventory: 0 }
+let coins = 0;
+let currentCrop = 'wheat';
+const cropData = {
+  wheat: { emoji: '🌾', growTime: 3000, value: 2, unlocked: true, inventory: 0 },
+  carrot: { emoji: '🥕', growTime: 4000, value: 4, unlocked: false, inventory: 0 },
+  strawberry: { emoji: '🍓', growTime: 5000, value: 6, unlocked: false, inventory: 0 }
+};
+const plots = [];
+const extraPlots = [];
+let expansionUnlocked = false;
+
+function createGrid(containerId, plotArray, locked = false) {
+  const grid = document.getElementById(containerId);
+  grid.innerHTML = "";
+  for (let i = 0; i < gridSize * gridSize; i++) {
+    const plot = document.createElement("div");
+    plot.className = locked ? "plot locked" : "plot";
+    plot.textContent = locked ? "Locked" : "Empty";
+    plot.dataset.index = i;
+    plot.onclick = () => {
+      if (!locked) handlePlotClick(i, plotArray, containerId);
     };
-    const plots = [];
-    const extraPlots = [];
-    let expansionUnlocked = false;
+    grid.appendChild(plot);
+    plotArray.push({ status: locked ? "locked" : "empty", timer: null, crop: null });
+  }
+}
 
-    function createGrid(containerId, plotArray, locked = false) {
-      const grid = document.getElementById(containerId);
-      grid.innerHTML = "";
-      for (let i = 0; i < gridSize * gridSize; i++) {
-        const plot = document.createElement("div");
-        plot.className = locked ? "plot locked" : "plot";
-        plot.textContent = locked ? "Locked" : "Empty";
-        plot.dataset.index = i;
-        plot.onclick = () => {
-          if (!locked) handlePlotClick(i, plotArray, containerId);
-        };
-        grid.appendChild(plot);
-        plotArray.push({ status: locked ? "locked" : "empty", timer: null, crop: null });
-      }
-    }
+function handlePlotClick(index, plotArray, containerId) {
+  const plot = plotArray[index];
+  const plotDiv = document.querySelector(`#${containerId} .plot[data-index="${index}"]`);
 
-    function handlePlotClick(index, plotArray, containerId) {
-      const plot = plotArray[index];
-      const plotDiv = document.querySelector(`#${containerId} .plot[data-index="${index}"]`);
-
-      if (plot.status === "empty") {
-        plot.status = "growing";
-        plot.crop = currentCrop;
-        plotDiv.textContent = "⏳";
-        plotDiv.classList.remove("grown");
-        plot.timer = setTimeout(() => {
-          plot.status = "grown";
-          plotDiv.textContent = cropData[plot.crop].emoji;
-          plotDiv.classList.add("grown");
-        }, cropData[currentCrop].growTime);
-      } else if (plot.status === "grown") {
-        plot.status = "empty";
-        plotDiv.textContent = "Empty";
-        plotDiv.classList.remove("grown");
-        cropData[plot.crop].inventory += 1;
-        updateStats();
-      }
-    }
-
-    function updateStats() {
-      document.getElementById("coins").textContent = coins;
-      document.getElementById("currentCrop").textContent = `${currentCrop} ${cropData[currentCrop].emoji}`;
-      updateInventorySidebar();
-    }
-
-    function selectCrop(crop) {
-      if (!cropData[crop].unlocked) return;
-      currentCrop = crop;
-      updateStats();
-    }
-
-    function buyCrop(crop, cost) {
-      if (coins < cost || cropData[crop].unlocked) return;
-      coins -= cost;
-      cropData[crop].unlocked = true;
-      selectCrop(crop);
-      updateStats();
-    }
-
-    function unlockExpansion() {
-      if (expansionUnlocked || coins < 50) return;
-      coins -= 50;
-      expansionUnlocked = true;
-      createGrid("extraGrid", extraPlots);
-      updateStats();
-    }
-
-    function updateInventorySidebar() {
-      const container = document.getElementById("inventoryList");
-      container.innerHTML = "";
-      for (let crop in cropData) {
-        if (cropData[crop].unlocked) {
-          const div = document.createElement("div");
-          div.innerHTML = `${crop.charAt(0).toUpperCase() + crop.slice(1)} ${cropData[crop].emoji} ${cropData[crop].inventory} 
-            <button onclick="selectCrop('${crop}')">Switch</button>`;
-          container.appendChild(div);
-        }
-      }
-    }
-
-    createGrid("farmGrid", plots);
-    createGrid("extraGrid", extraPlots, true);
+  if (plot.status === "empty") {
+    plot.status = "growing";
+    plot.crop = currentCrop;
+    plotDiv.textContent = "⏳";
+    plotDiv.classList.remove("grown");
+    plot.timer = setTimeout(() => {
+      plot.status = "grown";
+      plotDiv.textContent = cropData[plot.crop].emoji;
+      plotDiv.classList.add("grown");
+    }, cropData[currentCrop].growTime);
+  } else if (plot.status === "grown") {
+    plot.status = "empty";
+    plotDiv.textContent = "Empty";
+    plotDiv.classList.remove("grown");
+    cropData[plot.crop].inventory += 1;
     updateStats();
+  }
+}
+
+function updateStats() {
+  document.getElementById("coins").textContent = coins;
+  document.getElementById("currentCrop").textContent = `${currentCrop} ${cropData[currentCrop].emoji}`;
+  updateInventorySidebar();
+}
+
+function selectCrop(crop) {
+  if (!cropData[crop].unlocked) return;
+  currentCrop = crop;
+  updateStats();
+}
+
+function buyCrop(crop, cost) {
+  if (coins < cost || cropData[crop].unlocked) return;
+  coins -= cost;
+  cropData[crop].unlocked = true;
+  selectCrop(crop);
+  updateStats();
+}
+
+function unlockExpansion() {
+  if (expansionUnlocked || coins < 50) return;
+  coins -= 50;
+  expansionUnlocked = true;
+  createGrid("extraGrid", extraPlots);
+  updateStats();
+}
+
+function updateInventorySidebar() {
+  const container = document.getElementById("inventoryList");
+  container.innerHTML = "";
+  for (let crop in cropData) {
+    if (cropData[crop].unlocked) {
+      const div = document.createElement("div");
+      div.innerHTML = `${crop.charAt(0).toUpperCase() + crop.slice(1)} ${cropData[crop].emoji} ${cropData[crop].inventory} 
+        <button onclick="selectCrop('${crop}')">Switch</button>`;
+      container.appendChild(div);
+    }
+  }
+}
+
+function sellCrop() {
+  const type = document.getElementById("sellSelect").value;
+  const amount = parseInt(document.getElementById("sellAmount").value);
+  if (isNaN(amount) || amount <= 0) return;
+  if (cropData[type].inventory < amount) {
+    alert("Not enough inventory!");
+    return;
+  }
+  cropData[type].inventory -= amount;
+  coins += amount * cropData[type].value;
+  updateStats();
+}
+
+function sellAll() {
+  for (let crop in cropData) {
+    const amount = cropData[crop].inventory;
+    if (amount > 0) {
+      coins += amount * cropData[crop].value;
+      cropData[crop].inventory = 0;
+    }
+  }
+  updateStats();
+}
+
+createGrid("farmGrid", plots);
+createGrid("extraGrid", extraPlots, true);
+updateStats();
   </script>
 </body>
 </html>
