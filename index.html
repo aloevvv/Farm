@@ -2,13 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Farm Plot Idle Game</title>
+  <title>Farm & Fortune</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #f0f8e2;
-      text-align: center;
+      display: flex;
+      margin: 0;
+    }
+    .sidebar {
+      width: 200px;
+      background-color: #c5e1a5;
       padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+    .sidebar h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .sidebar button {
+      display: block;
+      margin: 10px 0;
+      padding: 8px;
+      width: 100%;
+      font-size: 14px;
+      background-color: #8bc34a;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .sidebar button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .main {
+      flex: 1;
+      padding: 20px;
+      text-align: center;
     }
     h1 {
       color: #4b8b3b;
@@ -18,7 +48,7 @@
       grid-template-columns: repeat(3, 100px);
       grid-gap: 10px;
       justify-content: center;
-      margin-top: 20px;
+      margin: 20px auto;
     }
     .plot {
       width: 100px;
@@ -32,59 +62,87 @@
       cursor: pointer;
       font-size: 14px;
     }
-    .stats {
-      margin-top: 20px;
-      font-size: 18px;
-    }
     .grown {
       background-color: #a5d6a7 !important;
+    }
+    .locked {
+      background-color: #eee;
+      border: 2px dashed #aaa;
+      cursor: not-allowed;
+    }
+    .stats {
+      font-size: 18px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>🌾 Farm Plot Idle Game 🌾</h1>
-  <p>Click a plot to plant wheat. Wait for it to grow, then click again to harvest!</p>
-  <div class="grid" id="farmGrid"></div>
-  <div class="stats">
-    <p>💰 Coins: <span id="coins">0</span></p>
+  <div class="sidebar">
+    <h2>🌱 Crops</h2>
+    <button onclick="selectCrop('wheat')">Wheat (Free)</button>
+    <button onclick="buyCrop('carrot', 10)" id="carrotBtn">Unlock Carrot (10💰)</button>
+    <button onclick="buyCrop('strawberry', 20)" id="strawberryBtn">Unlock Strawberry (20💰)</button>
+    <h2>🧱 Expansion</h2>
+    <button onclick="unlockExpansion()" id="expansionBtn">Unlock Extra Plot (50💰)</button>
+  </div>
+
+  <div class="main">
+    <h1>🌾 Farm & Fortune 🌾</h1>
+    <p>Click a plot to plant <span id="currentCrop">wheat</span>. Wait, then harvest!</p>
+    <div class="grid" id="farmGrid"></div>
+    <div class="grid" id="extraGrid"></div>
+    <div class="stats">
+      <p>💰 Coins: <span id="coins">0</span></p>
+    </div>
   </div>
 
   <script>
     const gridSize = 3;
     let coins = 0;
+    let currentCrop = 'wheat';
+    const cropData = {
+      wheat: { growTime: 3000, value: 2, unlocked: true },
+      carrot: { growTime: 4000, value: 4, unlocked: false },
+      strawberry: { growTime: 5000, value: 6, unlocked: false }
+    };
     const plots = [];
+    const extraPlots = [];
+    let expansionUnlocked = false;
 
-    function createGrid() {
-      const grid = document.getElementById("farmGrid");
+    function createGrid(containerId, plotArray, locked = false) {
+      const grid = document.getElementById(containerId);
       for (let i = 0; i < gridSize * gridSize; i++) {
         const plot = document.createElement("div");
-        plot.className = "plot";
-        plot.textContent = "Empty";
+        plot.className = locked ? "plot locked" : "plot";
+        plot.textContent = locked ? "Locked" : "Empty";
         plot.dataset.index = i;
-        plot.onclick = () => handlePlotClick(i);
+        plot.onclick = () => {
+          if (!locked) handlePlotClick(i, plotArray, containerId);
+        };
         grid.appendChild(plot);
-        plots.push({ status: "empty", timer: null });
+        plotArray.push({ status: locked ? "locked" : "empty", timer: null, crop: null });
       }
     }
 
-    function handlePlotClick(index) {
-      const plot = plots[index];
-      const plotDiv = document.querySelector(`.plot[data-index="${index}"]`);
+    function handlePlotClick(index, plotArray, containerId) {
+      const plot = plotArray[index];
+      const plotDiv = document.querySelector(`#${containerId} .plot[data-index="${index}"]`);
 
       if (plot.status === "empty") {
         plot.status = "growing";
+        plot.crop = currentCrop;
         plotDiv.textContent = "Growing...";
         plotDiv.classList.remove("grown");
         plot.timer = setTimeout(() => {
           plot.status = "grown";
           plotDiv.textContent = "Ready!";
           plotDiv.classList.add("grown");
-        }, 3000);
+        }, cropData[currentCrop].growTime);
       } else if (plot.status === "grown") {
         plot.status = "empty";
         plotDiv.textContent = "Empty";
         plotDiv.classList.remove("grown");
-        coins += 2;
+        coins += cropData[plot.crop].value;
         updateStats();
       }
     }
@@ -93,7 +151,33 @@
       document.getElementById("coins").textContent = coins;
     }
 
-    createGrid();
+    function selectCrop(crop) {
+      if (!cropData[crop].unlocked) return;
+      currentCrop = crop;
+      document.getElementById("currentCrop").textContent = crop;
+    }
+
+    function buyCrop(crop, cost) {
+      if (coins < cost || cropData[crop].unlocked) return;
+      coins -= cost;
+      cropData[crop].unlocked = true;
+      document.getElementById(crop + "Btn").disabled = true;
+      selectCrop(crop);
+      updateStats();
+    }
+
+    function unlockExpansion() {
+      if (expansionUnlocked || coins < 50) return;
+      coins -= 50;
+      expansionUnlocked = true;
+      document.getElementById("expansionBtn").disabled = true;
+      document.getElementById("extraGrid").innerHTML = "";
+      createGrid("extraGrid", extraPlots);
+      updateStats();
+    }
+
+    createGrid("farmGrid", plots);
+    createGrid("extraGrid", extraPlots, true);
   </script>
 </body>
 </html>
